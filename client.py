@@ -1,4 +1,4 @@
-import websocket # Incluir para o cliente
+import websocket # Incluir para o cliente (na pasta)
 import json
 
 usageStatus = json.dumps( ['foo', {'bar': ('baz', None, 1.0, 2)}] )
@@ -16,4 +16,5 @@ if __name__ == "__main__":
     result = ws.recv()
     print("Received {}".format(result))
 
-    ws.close()
+    ws.run_forever()
+    #ws.close()
