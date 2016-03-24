@@ -3,16 +3,24 @@
 
     window.onload = function()
     {
-        onLoad();
+        connectToWS();
     }
+    
     var ws;
  
-    function onLoad() {
+    function connectToWS() {
         ws = new WebSocket("ws://localhost:8080/websocket");
-        console.log(ws);
+        // console.log(ws);
+
+        ws.onopen = function(e) {
+            // console.log('Opened connection');
+            // console.log(e);
+            var request = { 'request': 'retrieve-clients-data'}
+            ws.send( JSON.stringify(request) );
+        }
  
         ws.onmessage = function(e) {
-           alert(e.data);
+           //alert(e.data);
            console.log(e.data);
         };
     }

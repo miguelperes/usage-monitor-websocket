@@ -2,10 +2,12 @@ import websocket
 import time
 import sys
 
+import json
+
 HOSTNAME = "ws://127.0.0.1:8080/websocket"
 
 def on_message(ws, message):
-    print(message)
+    print("From server: " + str(message))
 
 
 def on_error(ws, error):
@@ -13,21 +15,15 @@ def on_error(ws, error):
 
 
 def on_close(ws):
-    print("### closed ###")
+    print("### client closed ###")
 
 
 def on_open(ws):
     
-    for i in range(5):
-        # send the message, then wait
-        # so thread doesn't exit and socket
-        # isn't closed
-        ws.send("Hello %d" % i)
-        time.sleep(1)
+    msg = {'request' : 'new-connection'}
+    ws.send( json.dumps(msg) );    
 
-    time.sleep(1)
     #ws.close()
-    print("Thread terminating...")
 
 if __name__ == "__main__":
     websocket.enableTrace(True)
