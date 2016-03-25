@@ -26,6 +26,11 @@ class WebSocketHandler(tornado.websocket.WebSocketHandler):
 
 		if self in clients:
 			clients.remove(self)
+			
+			clientRemovalMsg = { 'type': 'update-hw-clients', 'content' : len(clients) }
+			broadcastToWebClients(clientRemovalMsg)
+
+
 		elif self in webClients:
 			webClients.remove(self)
 
@@ -48,7 +53,7 @@ class WebSocketHandler(tornado.websocket.WebSocketHandler):
 				print('\tAdding a hardware client: ' + str(self))
 				clients.append(self)
 
-				msg = { 'message' : 'update-hw-clients', 'content' : len(clients) }
+				msg = { 'type' : 'update-hw-clients', 'content' : len(clients) }
 				broadcastToWebClients(msg)
 
 			elif clientType == 'web-client':
@@ -58,12 +63,12 @@ class WebSocketHandler(tornado.websocket.WebSocketHandler):
 			debugClientStatus()
 
 		elif request == 'retrieve-clients-data':
-			reply = { 'reply' : 'connected-clients', 'content' : len(clients) }
+			reply = { 'type' : 'update-hw-clients', 'content' : len(clients) }
 			self.write_message( reply )
 
 		else:
 			print('request: ' + str(request) + ' is not a valid request')
-			reply = { 'reply' : 'connected-clients', 'content' : 'INVALID' }
+			reply = { 'type' : 'connected-clients', 'content' : 'INVALID' }
 			self.write_message( reply )
 
  
