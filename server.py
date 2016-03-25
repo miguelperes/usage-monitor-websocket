@@ -5,8 +5,8 @@ import tornado.ioloop
 
 import json
 
-clients = []
-webClients = []
+clients = []			# Clients running the CLI monitor app
+webClients = []			# Clients running the web interface
  
 class WebSocketHandler(tornado.websocket.WebSocketHandler):
 	def open(self):
@@ -29,7 +29,7 @@ class WebSocketHandler(tornado.websocket.WebSocketHandler):
 		elif self in webClients:
 			webClients.remove(self)
 
-		clientStatus()
+		debugClientStatus()
 
 
 		#pass
@@ -48,11 +48,14 @@ class WebSocketHandler(tornado.websocket.WebSocketHandler):
 				print('\tAdding a hardware client: ' + str(self))
 				clients.append(self)
 
+				msg = { 'message' : 'update-hw-clients', 'content' : len(clients) }
+				broadcastToWebClients(msg)
+
 			elif clientType == 'web-client':
 				print('\tAdding a web client: ' + str(self))
 				webClients.append(self)
 
-			clientStatus()
+			debugClientStatus()
 
 		elif request == 'retrieve-clients-data':
 			reply = { 'reply' : 'connected-clients', 'content' : len(clients) }
@@ -85,7 +88,12 @@ class Application(tornado.web.Application):
 		}
 		tornado.web.Application.__init__(self, handlers, **settings)
 
-def clientStatus():
+def broadcastToWebClients(message):
+	for wClient in webClients:
+		wClient.write_message(message)
+
+
+def debugClientStatus():
 	print("\tTOTAL H-Clients: " + str(len(clients)))
 	print("\tTOTAL W-Clients: " + str(len(webClients)))
 
