@@ -20,7 +20,7 @@ def on_close(ws):
 
 def on_open(ws):
     
-    msg = {'request' : 'new-connection'}
+    msg = {'request' : 'new-connection', 'client-type' : 'hardware-client'}
     ws.send( json.dumps(msg) );    
 
     #ws.close()

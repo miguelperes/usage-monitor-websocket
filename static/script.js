@@ -12,6 +12,9 @@ window.onload = function()
         ws.onopen = function(e) {
             // console.log('Opened connection');
             // console.log(e);
+            var request = { 'request': 'new-connection', 'client-type': 'web-client' }
+            ws.send( JSON.stringify(request) );
+            
             var request = { 'request': 'retrieve-clients-data'}
             ws.send( JSON.stringify(request) );
         }

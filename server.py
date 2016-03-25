@@ -6,6 +6,7 @@ import tornado.ioloop
 import json
 
 clients = []
+webClients = []
  
 class WebSocketHandler(tornado.websocket.WebSocketHandler):
 	def open(self):
@@ -21,17 +22,29 @@ class WebSocketHandler(tornado.websocket.WebSocketHandler):
 		print("Closing connection with: " + str(self))
 		print("Codes: " + str(self.close_code) + " | " + str(self.close_reason))
 		clients.remove(self)
-		#print(clients)
+		print(clients)
 		#pass
 
 	def process_request(self, message):
-		request = json.loads(message)['request']	#TODO: VALIDATE MSG
+		msg = json.loads(message)
+		request = msg['request']	#TODO: VALIDATE MSG
 		
+		print('# REQUEST: ' + request)	
 		# print(request)
 		if request == 'new-connection':
-			# print("Adding [[[ " + str(self) + " ]]] to clients list")
-			clients.append(self)
-			print("TOTAL CONNECTIONS: " + str(len(clients)))
+			clientType = msg['client-type']
+			print('# CLIENT-TYPE: ' + clientType)
+			
+			if clientType == 'hardware-client':
+				print('\tAdding a hardware client: ' + str(self))
+				clients.append(self)
+
+			elif clientType == 'web-client':
+				print('\tAdding a web client: ' + str(self))
+				webClients.append(self)
+
+			print("\tTOTAL H-Clients: " + str(len(clients)))
+			print("\tTOTAL W-Clients: " + str(len(webClients)))
 
 		elif request == 'retrieve-clients-data':
 			reply = { 'reply' : 'connected-clients', 'content' : len(clients) }
