@@ -9,8 +9,11 @@ clients = []			# Clients running the CLI monitor app
 webClients = []			# Clients running the web interface
  
 class WebSocketHandler(tornado.websocket.WebSocketHandler):
+	def check_origin(self, origin):
+		return True
+
 	def open(self):
-		print("Incomming Connection: " + str(self))
+		print("Incomming Connection: " + str(self.request.remote_ip))
 		#pass
  
 	def on_message(self, message):
@@ -26,7 +29,7 @@ class WebSocketHandler(tornado.websocket.WebSocketHandler):
 
 		if self in clients:
 			clients.remove(self)
-			
+
 			clientRemovalMsg = { 'type': 'update-hw-clients', 'content' : len(clients) }
 			broadcastToWebClients(clientRemovalMsg)
 

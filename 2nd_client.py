@@ -1,8 +1,8 @@
-import websocket
-import time
-import sys
-
+import datetime
 import json
+
+import websocket
+import psutil
 
 HOSTNAME = "ws://127.0.0.1:8080/websocket"
 
@@ -26,11 +26,34 @@ def on_open(ws):
     #ws.close()
 
 if __name__ == "__main__":
-    websocket.enableTrace(True)
-    ws = websocket.WebSocketApp(HOSTNAME,
-                                on_message = on_message,
-                                on_error = on_error,
-                                on_close = on_close)
+    # websocket.enableTrace(True)
+    # ws = websocket.WebSocketApp(HOSTNAME,
+    #                             on_message = on_message,
+    #                             on_error = on_error,
+    #                             on_close = on_close)
 
-    ws.on_open = on_open
-    ws.run_forever()
+    # ws.on_open = on_open
+    # ws.run_forever()
+
+    
+
+    
+    cpu_usage = psutil.cpu_percent(interval=1)
+    mem_usage = psutil.virtual_memory().percent
+    collect_time = str(datetime.datetime.now())
+
+    data = { 'type'         : 'usage-data',
+             'cpu-usage'    : cpu_usage,
+             'memory-usage' : mem_usage,
+             'timestamp'    : collect_time }
+
+    print(json.dumps(data))
+
+
+
+
+
+
+
+
+

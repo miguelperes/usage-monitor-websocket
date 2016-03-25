@@ -2,8 +2,11 @@
     <body>
         <head>
             <title>Tornado WebSockets</title>
-            <script src="/static/WebSocketHandler.js"></script>
-            <script src="/static/script.js"></script>
+            <!-- <script src="/static/WebSocketHandler.js"></script> -->
+            <!-- <script src="/static/script.js"></script>  -->
+            <script src="{{ static_url("Chart.min.js") }}"></script> 
+            <script src="{{ static_url("WebSocketHandler.js") }}"></script> 
+            <script src="{{ static_url("script.js") }}"></script> 
         </head>
          
          
@@ -11,3 +14,4 @@
         <input type="button" onclick="sendMsg();" value="Send">
     </body>
 </html>
+

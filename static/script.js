@@ -1,3 +1,6 @@
+var SERVER_ADRESS = "ws://localhost:8080/websocket"		//local
+// var SERVER_ADRESS = "ws://192.168.0.100:8080/websocket"	//global
+
 window.onload = function()
 {
     connectToWS();
@@ -6,7 +9,8 @@ window.onload = function()
 var webSocket;
 
 function connectToWS() {
-    webSocket = new WebSocketHandler("ws://localhost:8080/websocket");
+    webSocket = new WebSocketHandler(SERVER_ADRESS);
+
 }
 
 function sendMsg() {
