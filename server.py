@@ -21,8 +21,17 @@ class WebSocketHandler(tornado.websocket.WebSocketHandler):
 	def on_close(self):
 		print("Closing connection with: " + str(self))
 		print("Codes: " + str(self.close_code) + " | " + str(self.close_reason))
-		clients.remove(self)
-		print(clients)
+		# clients.remove(self)
+		# print(clients)
+
+		if self in clients:
+			clients.remove(self)
+		elif self in webClients:
+			webClients.remove(self)
+
+		clientStatus()
+
+
 		#pass
 
 	def process_request(self, message):
@@ -43,8 +52,7 @@ class WebSocketHandler(tornado.websocket.WebSocketHandler):
 				print('\tAdding a web client: ' + str(self))
 				webClients.append(self)
 
-			print("\tTOTAL H-Clients: " + str(len(clients)))
-			print("\tTOTAL W-Clients: " + str(len(webClients)))
+			clientStatus()
 
 		elif request == 'retrieve-clients-data':
 			reply = { 'reply' : 'connected-clients', 'content' : len(clients) }
@@ -76,6 +84,11 @@ class Application(tornado.web.Application):
 			'static_path': 'static'
 		}
 		tornado.web.Application.__init__(self, handlers, **settings)
+
+def clientStatus():
+	print("\tTOTAL H-Clients: " + str(len(clients)))
+	print("\tTOTAL W-Clients: " + str(len(webClients)))
+
  
  
 if __name__ == '__main__':
