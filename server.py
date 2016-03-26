@@ -11,6 +11,7 @@ class Manager():
 	
 	clientsMap = {}		# Maps client ID 		-> client websocket interface
 	idsMap	   = {}		# Maps client websocket -> client ID	
+	usageData  = {}		# Maps all data sent by the clients, by ID
 
 	hwClients  = []		# Hardware Clients: clients running the CLI monitor app
 	webClients = []		# Web Clients: 		clients running the web interface
@@ -32,6 +33,9 @@ class Manager():
 
 		Manager.hwClients.append(client)
 
+		msg = { 'type' : 'update-hw-clients', 'content' : clientID } #Send ID of new client
+		Manager.broadcastToWebClients(msg)
+
 	def logoffClient(client):
 		if client in Manager.hwClients:
 			Manager.hwClients.remove(client)
@@ -45,6 +49,7 @@ class Manager():
 			if client in Manager.idsMap.keys():
 				Manager.idsMap.pop(client)
 
+																				#TODO send id
 			clientRemovalMsg = { 'type': 'update-hw-clients', 'content' : len(Manager.hwClients) }
 			Manager.broadcastToWebClients(clientRemovalMsg)
 
@@ -54,13 +59,21 @@ class Manager():
 
 		debugClientStatus()
 
-	def appendIDToMsg(msg, clientSocket):
+	def composeMessage(msg, clientSocket):
 		clientID = Manager.idsMap[clientSocket]
-		
-		data = msg
-		data['id'] = clientID
 
-		return data
+		if clientID not in Manager.usageData:
+			Manager.usageData[clientID] = []
+
+		Manager.usageData[clientID].append(msg)
+
+		message = { 'type': 'usage-update', 'id': clientID, 'content': msg }
+
+		print(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
+		# print(json.dumps(Manager.usageData, sort_keys=True, indent=4))
+		print(json.dumps(message, sort_keys=True, indent=4))
+
+		return json.dumps(message)
 
 	def broadcastToWebClients(message):
 		for wClient in Manager.webClients:
@@ -101,23 +114,19 @@ class WebSocketHandler(tornado.websocket.WebSocketHandler):
 			if clientType == 'hardware-client':
 				print('\tAdding a hardware client: ' + str(self))
 				Manager.signupClient(self)
-				# clients.append(self)
-
-				msg = { 'type' : 'update-hw-clients', 'content' : len(Manager.hwClients) }
-				Manager.broadcastToWebClients(msg)
 
 			elif clientType == 'web-client':
 				print('\tAdding a web client: ' + str(self))
 				Manager.webClients.append(self)
 				
-				reply = { 'type' : 'update-hw-clients', 'content' : len(Manager.hwClients) }
+				reply = { 'type' : 'boot-usage-data', 'content' : json.dumps(Manager.usageData) }
 				self.write_message( reply )
 
 			debugClientStatus()
 
 		elif request == 'usage-data':
-			data = Manager.appendIDToMsg(msg, self)
-			Manager.broadcastToWebClients(data)
+			reply = Manager.composeMessage(msg, self)
+			Manager.broadcastToWebClients(reply)
 
 		else:
 			print('request: ' + str(request) + ' is not a valid request')

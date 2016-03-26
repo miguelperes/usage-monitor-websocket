@@ -37,13 +37,23 @@ WebSocketHandler.prototype.processMessage = function(message)
 {
     var msg = JSON.parse(message);
     var msgType = msg.type;
-    // console.log(msgType);
+    console.log(msgType);
 
     switch(msgType)
     {
         case 'update-hw-clients':
-            console.log(msg.content);
+            console.log(JSON.parse(msg.content));
             this.numberOfClients = msg.content;
+            break;
+
+        case 'boot-usage-data':
+            console.log(JSON.parse(msg.content));
+            break;
+
+        case 'usage-update':
+            // console.log(JSON.parse(msg.content));
+            // console.log(JSON.stringify(msg));
+            console.log(msg.content.timestamp);
             break;
 
         default:
