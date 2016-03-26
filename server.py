@@ -9,7 +9,9 @@ import os
 
 class Manager():
 	
-	clientsMap = {}		# Maps client ID -> client websocket interface
+	clientsMap = {}		# Maps client ID 		-> client websocket interface
+	idsMap	   = {}		# Maps client websocket -> client ID	
+
 	hwClients  = []		# Hardware Clients: clients running the CLI monitor app
 	webClients = []		# Web Clients: 		clients running the web interface
 
@@ -26,7 +28,9 @@ class Manager():
 		clientID = Manager.getNextClientID()
 
 		Manager.clientsMap[clientID] = client
-		Manager.hwClients.insert(clientID, client)
+		Manager.idsMap[client] = clientID
+
+		Manager.hwClients.append(client)
 
 	def logoffClient(client):
 		if client in Manager.hwClients:
@@ -38,15 +42,29 @@ class Manager():
 					idToRemove = cID
 			Manager.clientsMap.pop(idToRemove);
 
+			if client in Manager.idsMap.keys():
+				Manager.idsMap.pop(client)
 
 			clientRemovalMsg = { 'type': 'update-hw-clients', 'content' : len(Manager.hwClients) }
-			broadcastToWebClients(clientRemovalMsg)
+			Manager.broadcastToWebClients(clientRemovalMsg)
 
 
 		elif client in Manager.webClients:
 			Manager.webClients.remove(client)
 
 		debugClientStatus()
+
+	def appendIDToMsg(msg, clientSocket):
+		clientID = Manager.idsMap[clientSocket]
+		
+		data = msg
+		data['id'] = clientID
+
+		return data
+
+	def broadcastToWebClients(message):
+		for wClient in Manager.webClients:
+			wClient.write_message(message)
 		
 
  
@@ -86,7 +104,7 @@ class WebSocketHandler(tornado.websocket.WebSocketHandler):
 				# clients.append(self)
 
 				msg = { 'type' : 'update-hw-clients', 'content' : len(Manager.hwClients) }
-				broadcastToWebClients(msg)
+				Manager.broadcastToWebClients(msg)
 
 			elif clientType == 'web-client':
 				print('\tAdding a web client: ' + str(self))
@@ -97,13 +115,9 @@ class WebSocketHandler(tornado.websocket.WebSocketHandler):
 
 			debugClientStatus()
 
-		# UPDATE
-		# elif request == 'retrieve-clients-data':
-		# 	reply = { 'type' : 'update-hw-clients', 'content' : len(Manager.hwClients) }
-		# 	self.write_message( reply )
-
 		elif request == 'usage-data':
-			# Attach client ID to data and broadcast it to webclients
+			data = Manager.appendIDToMsg(msg, self)
+			Manager.broadcastToWebClients(data)
 
 		else:
 			print('request: ' + str(request) + ' is not a valid request')
@@ -134,12 +148,6 @@ class Application(tornado.web.Application):
 		}
 		tornado.web.Application.__init__(self, handlers, **settings)
 
-
-def broadcastToWebClients(message):
-	for wClient in Manager.webClients:
-		wClient.write_message(message)
-
-
 def debugClientStatus():
 			
 	# os.system("clear")
@@ -148,8 +156,11 @@ def debugClientStatus():
 	print(Manager.hwClients)
 	print("\n\tTOTAL W-Clients: " + str(len(Manager.webClients)))
 	print(Manager.webClients)
-	print("\n\tMap:")
+	print("\n\tClient Map:")
 	for cid, client in Manager.clientsMap.items():
+			print(cid, client)
+	print("\n\tIDs Map:")
+	for cid, client in Manager.idsMap.items():
 			print(cid, client)
 
  

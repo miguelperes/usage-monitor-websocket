@@ -48,6 +48,7 @@ WebSocketHandler.prototype.processMessage = function(message)
 
         default:
             console.log('ERROR: Invalid message from server');
+            console.log(msg);
     }
 
 }
