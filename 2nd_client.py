@@ -20,24 +20,15 @@ def on_close(ws):
 
 def on_open(ws):
     
-    msg = {'request' : 'new-connection', 'client-type' : 'hardware-client'}
-    ws.send( json.dumps(msg) );    
+    msg = {'type' : 'new-connection', 'client-type' : 'hardware-client'}
+    ws.send( json.dumps(msg) );
+
+    usage_status = gather_data()
+    ws.send( usage_status )
 
     #ws.close()
 
-if __name__ == "__main__":
-    # websocket.enableTrace(True)
-    # ws = websocket.WebSocketApp(HOSTNAME,
-    #                             on_message = on_message,
-    #                             on_error = on_error,
-    #                             on_close = on_close)
-
-    # ws.on_open = on_open
-    # ws.run_forever()
-
-    
-
-    
+def gather_data():
     cpu_usage = psutil.cpu_percent(interval=1)
     mem_usage = psutil.virtual_memory().percent
     collect_time = str(datetime.datetime.now())
@@ -47,7 +38,23 @@ if __name__ == "__main__":
              'memory-usage' : mem_usage,
              'timestamp'    : collect_time }
 
-    print(json.dumps(data))
+    return json.dumps(data)
+
+
+if __name__ == "__main__":
+    websocket.enableTrace(True)
+    ws = websocket.WebSocketApp(HOSTNAME,
+                                on_message = on_message,
+                                on_error = on_error,
+                                on_close = on_close)
+
+    ws.on_open = on_open
+    ws.run_forever()
+
+    
+
+    
+    
 
 
 

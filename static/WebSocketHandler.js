@@ -17,11 +17,11 @@ WebSocketHandler.prototype.initWebSocketCallbacks = function()
     this.ws.onopen = function(e) {
         // console.log('Opened connection');
         // console.log(e);
-        var request = { 'request': 'new-connection', 'client-type': 'web-client' }
+        var request = { 'type': 'new-connection', 'client-type': 'web-client' }
         this.send( JSON.stringify(request) );
 
-        var request = { 'request': 'retrieve-clients-data'}
-        this.send( JSON.stringify(request) );
+        // var request = { 'request': 'retrieve-clients-data'}
+        // this.send( JSON.stringify(request) );
     }
 
     this.ws.onmessage = function(e) {
