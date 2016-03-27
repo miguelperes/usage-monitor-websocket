@@ -7,11 +7,14 @@
             <script src="{{ static_url("Chart.min.js") }}"></script> 
             <script src="{{ static_url("WebSocketHandler.js") }}"></script> 
             <script src="{{ static_url("script.js") }}"></script> 
+            <link rel="stylesheet" type="text/css" href="{{ static_url("style.css") }}">
         </head>
+
+        <div id="monitors-area"></div>
          
          
-        <strong>Message to Send:</strong> <input type="text" id="msg" maxlength="25">
-        <input type="button" onclick="sendMsg();" value="Send">
+        <!-- <strong>Message to Send:</strong> <input type="text" id="msg" maxlength="25"> -->
+        <!-- <input type="button" onclick="sendMsg();" value="Send"> -->
     </body>
 </html>
 

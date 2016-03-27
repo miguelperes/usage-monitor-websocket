@@ -9,9 +9,9 @@ import os
 
 class Manager():
 	
-	clientsMap = {}		# Maps client ID 		-> client websocket interface
-	idsMap	   = {}		# Maps client websocket -> client ID	
-	usageData  = {}		# Maps all data sent by the clients, by ID
+	clientsMap = {}							# Maps client ID 		-> client websocket interface
+	idsMap	   = {}							# Maps client websocket -> client ID	
+	usageData  = { 'client-list' : [] }		# Maps all data sent by the clients, by ID
 
 	hwClients  = []		# Hardware Clients: clients running the CLI monitor app
 	webClients = []		# Web Clients: 		clients running the web interface
@@ -33,7 +33,7 @@ class Manager():
 
 		Manager.hwClients.append(client)
 
-		msg = { 'type' : 'update-hw-clients', 'content' : clientID } #Send ID of new client
+		msg = { 'type' : 'new-hwclient', 'content' : clientID } #Send ID of new client
 		Manager.broadcastToWebClients(msg)
 
 	def logoffClient(client):
@@ -49,9 +49,10 @@ class Manager():
 			if client in Manager.idsMap.keys():
 				Manager.idsMap.pop(client)
 
-																				#TODO send id
-			clientRemovalMsg = { 'type': 'update-hw-clients', 'content' : len(Manager.hwClients) }
+			clientRemovalMsg = { 'type': 'remove-hw-clients', 'content' : idToRemove }
 			Manager.broadcastToWebClients(clientRemovalMsg)
+
+			Manager.removeFromStorage(idToRemove)
 
 
 		elif client in Manager.webClients:
@@ -62,24 +63,62 @@ class Manager():
 	def composeMessage(msg, clientSocket):
 		clientID = Manager.idsMap[clientSocket]
 
-		if clientID not in Manager.usageData:
-			Manager.usageData[clientID] = []
-
-		Manager.usageData[clientID].append(msg)
+		Manager.updateDataStorage(clientID, msg)
 
 		message = { 'type': 'usage-update', 'id': clientID, 'content': msg }
 
-		print(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
+		# print(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
 		# print(json.dumps(Manager.usageData, sort_keys=True, indent=4))
-		print(json.dumps(message, sort_keys=True, indent=4))
+		# print(json.dumps(message, sort_keys=True, indent=4))
 
 		return json.dumps(message)
 
 	def broadcastToWebClients(message):
 		for wClient in Manager.webClients:
 			wClient.write_message(message)
-		
 
+	def updateDataStorage(clientID, msg):
+		if not Manager.checkForClientInStorage(clientID):
+			obj = { 'id' : clientID, 'history' : [] }
+			obj['history'].append(msg)
+			Manager.usageData['client-list'].append(obj)
+		else:
+			clientObj = Manager.getClientObjFromList(clientID)
+			if clientObj != -1:
+				clientObj['history'].append(msg)
+			else:
+				print('@ERROR: CLIENT NOT FOUND')
+			
+		# print('@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@')
+		# print(Manager.checkForClientInStorage(clientID))
+
+	def checkForClientInStorage(clientID):
+		cList = Manager.usageData['client-list']
+		for i in range(len(cList)):
+			if cList[i]['id'] == clientID:
+				return True
+		return False
+
+	def getClientObjFromList(clientID):
+		cList = Manager.usageData['client-list']
+		for i in range(len(cList)):
+			if cList[i]['id'] == clientID:
+				return cList[i]
+		return -1
+
+	def removeFromStorage(clientID):
+		cList = Manager.usageData['client-list']
+		objToRemove = None
+
+		for i in range(len(cList)):
+			if cList[i]['id'] == clientID:
+				objToRemove = cList[i]
+		
+		if objToRemove != None:
+			cList.remove(objToRemove)
+		else:
+			print("Client not stored.")
+			
  
 class WebSocketHandler(tornado.websocket.WebSocketHandler):
 
@@ -174,7 +213,6 @@ def debugClientStatus():
 
  
 if __name__ == '__main__':
-	# print(nextClientID)
 	ws_app = Application()
 	ws_app.compiled_template_cache = False
 

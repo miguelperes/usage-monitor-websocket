@@ -4,7 +4,8 @@ import json
 import websocket
 import psutil
 
-HOSTNAME = "ws://127.0.0.1:8080/websocket"
+# HOSTNAME = "ws://127.0.0.1:8080/websocket"
+HOSTNAME = "ws://192.168.0.102:8080/websocket"
 
 def on_message(ws, message):
     print("From server: " + str(message))
@@ -26,8 +27,8 @@ def on_open(ws):
     usage_status = gather_data()
     ws.send( usage_status )
 
-    # usage_status = gather_data()
-    # ws.send( usage_status )
+    usage_status = gather_data()
+    ws.send( usage_status )
 
     #ws.close()
 
