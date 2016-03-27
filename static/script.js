@@ -1,5 +1,5 @@
 // var SERVER_ADRESS = "ws://localhost:8080/websocket"		//local
-var SERVER_ADRESS = "ws://192.168.0.102:8080/websocket"	//global
+var SERVER_ADRESS = "ws://192.168.0.100:8080/websocket"	//global
 
 window.onload = function()
 {
