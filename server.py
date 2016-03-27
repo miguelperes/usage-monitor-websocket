@@ -148,7 +148,6 @@ class WebSocketHandler(tornado.websocket.WebSocketHandler):
 		# NEW CONNECTION
 		if request == 'new-connection':
 			clientType = msg['client-type']
-			# print('# CLIENT-TYPE: ' + clientType)
 			
 			if clientType == 'hardware-client':
 				print('\tAdding a hardware client: ' + str(self))
@@ -171,10 +170,6 @@ class WebSocketHandler(tornado.websocket.WebSocketHandler):
 			print('request: ' + str(request) + ' is not a valid request')
 			reply = { 'type' : 'connected-clients', 'content' : 'INVALID' }
 			self.write_message( reply )
-
-	
-
- 
  
 class IndexPageHandler(tornado.web.RequestHandler):
 	def get(self):

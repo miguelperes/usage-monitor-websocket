@@ -6,6 +6,7 @@ import psutil
 
 # HOSTNAME = "ws://127.0.0.1:8080/websocket"
 HOSTNAME = "ws://192.168.0.100:8080/websocket"
+# HOSTNAME = "ws://45.55.193.149:8080/websocket"
 
 DATE_FORMAT = '{0:%Y-%m-%d %H:%M:%S}'
 
@@ -26,34 +27,15 @@ def on_open(ws):
     msg = {'type' : 'new-connection', 'client-type' : 'hardware-client'}
     ws.send( json.dumps(msg) );
 
-    usage_status = gather_data()
-    ws.send( usage_status )
 
-    usage_status = gather_data()
-    ws.send( usage_status )
-
-    usage_status = gather_data()
-    ws.send( usage_status )
-
-    usage_status = gather_data()
-    ws.send( usage_status )
-
-    usage_status = gather_data()
-    ws.send( usage_status )
-
-    usage_status = gather_data()
-    ws.send( usage_status )
-
-    usage_status = gather_data()
-    ws.send( usage_status )
-
-    usage_status = gather_data()
-    ws.send( usage_status )
+    while True:
+        usage_status = gather_data(5)
+        ws.send( usage_status )
 
     #ws.close()
 
-def gather_data():
-    cpu_usage = psutil.cpu_percent(interval=1)
+def gather_data(interval):
+    cpu_usage = psutil.cpu_percent( interval )
     mem_usage = psutil.virtual_memory().percent
     collect_time = str(DATE_FORMAT.format(datetime.datetime.now()))  
 

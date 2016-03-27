@@ -60,6 +60,7 @@ WebSocketHandler.prototype.processMessage = function(message)
 
 WebSocketHandler.prototype.initData = function(message)
 {
+    console.log('CHECANCO BANCO DO SERVIDOR');
     var content = JSON.parse(message.content)
     var list = content['client-list']; // List of all clients and their status history
 
@@ -85,8 +86,8 @@ WebSocketHandler.prototype.initData = function(message)
 
 WebSocketHandler.prototype.addMonitor = function(message)
 {
+    console.log('ADICIONANDO UM MONITOR' + id);
     var id = JSON.parse(message.content);
-    console.log('adding ' + id);
     
     var monitorDiv = createMonitorDiv(id);
     document.getElementById('monitors-area').appendChild(monitorDiv);
@@ -106,6 +107,11 @@ WebSocketHandler.prototype.removeMonitor = function(message)
 
     var monitorToRemove = document.getElementById('monitor_' + id);
     document.getElementById('monitors-area').removeChild(monitorToRemove);
+
+    if(this.charts[id])
+    {
+        delete this.charts[id];
+    }
 }
 
 function createMonitorDiv(id)
@@ -129,7 +135,15 @@ WebSocketHandler.prototype.createChartAndAppend = function(clientStats, divToApp
 {
     var data = this.initDataForChart(clientStats['history']);
 
+    
+
     var monitorCanvas = createMonitorCanvas( clientStats['id'] )
+    
+    var cs = getComputedStyle(divToAppendTo);
+    var divWidth = parseInt(cs.getPropertyValue('width'), 10);
+    var divHeight = parseInt(cs.getPropertyValue('height'), 10);
+    monitorCanvas.width = divWidth;
+    monitorCanvas.height = divHeight;
 
     var ctx = monitorCanvas.getContext("2d");
     var newChart = new Chart(ctx).Line(data);
@@ -157,7 +171,7 @@ WebSocketHandler.prototype.initDataForChart = function(usageHistory)
 
 WebSocketHandler.prototype.updateData = function(message)
 {
-    console.log('UPDATE DATA');
+    console.log('ATUALIZANDO DADOS');
     var monitorID   = message['id'];
     var memoryUsage = message['content']['memory-usage'];
     var cpuUsage    = message['content']['cpu-usage'];
@@ -169,44 +183,39 @@ WebSocketHandler.prototype.updateData = function(message)
 
     var chart = this.charts[monitorID];
 
-    chart.addData([cpuUsage, memoryUsage], timestamp);
+    if(chart)
+    {
+        chart.addData([cpuUsage, memoryUsage], timestamp);
+    }
+    else
+    {
+        location.reload();
+    }
 }
+
+window.onresize = function(){ /*resizeCanvas()*/ }
 
 function printJSON(obj)
 {
     console.log(JSON.stringify(obj, null, 2));
 }
 
-var CHART_FORMAT = { 
-        labels: [],
-        datasets: [
-            {
-                label: "CPU",
-                // Options here
-                fillColor: "rgba(220,220,220,0.2)",
-                strokeColor: "rgba(220,220,220,1)",
-                pointColor: "rgba(220,220,220,1)",
-                pointStrokeColor: "#fff",
-                pointHighlightFill: "#fff",
-                pointHighlightStroke: "rgba(220,220,220,1)",
-                data: []
+function resizeCanvas()
+{
+    var monitorDivs = document.getElementsByClassName('monitor');
 
-            },
-            {
-                label: "Memory",
-                // Options here
-                fillColor: "rgba(100,100,220,0.2)",
-                strokeColor: "#000000",
-                pointColor: "#3F0680",
-                pointStrokeColor: "#000000",
-                pointHighlightFill: "#fff",
-                pointHighlightStroke: "rgba(220,220,220,1)",
-                data: []
-            }
-        ]
+    for(var i = 0; i < monitorDivs.length; i++)
+    {
+        var monitor = monitorDivs[i];
+        var cs = getComputedStyle(monitor);
+        var divWidth = parseInt(cs.getPropertyValue('width'), 10);
+        var divHeight = parseInt(cs.getPropertyValue('height'), 10);
 
-    };
-
-// Chart Options
-Chart.defaults.global.scaleFontSize = 8;
-Chart.defaults.global.scaleFontStyle = "bold";
+        for(var j = 0; j < monitor.childNodes.length; j++)
+        {
+            var canvas = monitor.childNodes[j];
+            canvas.style.width = divWidth;
+            canvas.style.height = divHeight;
+        }
+    }
+}

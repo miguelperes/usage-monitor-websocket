@@ -1,17 +1,26 @@
 <html>
     <body>
         <head>
-            <title>Tornado WebSockets</title>
+            <title>Hardware Monitor</title>
             <!-- <script src="/static/WebSocketHandler.js"></script> -->
             <!-- <script src="/static/script.js"></script>  -->
             <script src="{{ static_url("Chart.js") }}"></script> 
+            <script src="{{ static_url("ChartsConfig.js") }}"></script> 
             <script src="{{ static_url("WebSocketHandler.js") }}"></script> 
             <script src="{{ static_url("script.js") }}"></script> 
             <link rel="stylesheet" type="text/css" href="{{ static_url("style.css") }}">
         </head>
+        <span id="forkongithub"><a href="https://github.com/miguelperes/usage-monitor-websocket">Fork me on GitHub</a></span>
 
-        <div id="monitors-area"></div>
-         
+        <div id="main">
+            <h1 id=title>Hardware Monitor</h1>
+            <div id="monitors-area"></div>
+        </div>
+
+
+
+
+
          
         <!-- <strong>Message to Send:</strong> <input type="text" id="msg" maxlength="25"> -->
         <!-- <input type="button" onclick="sendMsg();" value="Send"> -->
