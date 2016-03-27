@@ -38,6 +38,18 @@ def on_open(ws):
     usage_status = gather_data()
     ws.send( usage_status )
 
+    usage_status = gather_data()
+    ws.send( usage_status )
+
+    usage_status = gather_data()
+    ws.send( usage_status )
+
+    usage_status = gather_data()
+    ws.send( usage_status )
+
+    usage_status = gather_data()
+    ws.send( usage_status )
+
     #ws.close()
 
 def gather_data():

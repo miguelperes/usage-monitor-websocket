@@ -155,10 +155,21 @@ WebSocketHandler.prototype.initDataForChart = function(usageHistory)
     return data;
 }
 
-
 WebSocketHandler.prototype.updateData = function(message)
 {
-    var msg = JSON.parse(message.content);    
+    console.log('UPDATE DATA');
+    var monitorID   = message['id'];
+    var memoryUsage = message['content']['memory-usage'];
+    var cpuUsage    = message['content']['cpu-usage'];
+    var timestamp   = message['content']['timestamp'];
+    // var msg = JSON.parse(message.content);
+    printJSON(message);
+
+    console.log(monitorID + " | " + cpuUsage + " | " + memoryUsage + " | " + timestamp);
+
+    var chart = this.charts[monitorID];
+
+    chart.addData([cpuUsage, memoryUsage], timestamp);
 }
 
 function printJSON(obj)
