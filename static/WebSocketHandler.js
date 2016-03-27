@@ -63,33 +63,15 @@ WebSocketHandler.prototype.initData = function(message)
     var content = JSON.parse(message.content)
     var list = content['client-list']; // List of all clients and their status history
 
-    // console.log('All data received:');
-    // printJSON(list);
-
     if(list.length > 0){
         for(var i = 0; i < list.length; i++)
         {
-            // Init divs
             obj = list[i];
-
 
             var monitorDiv = createMonitorDiv( obj['id'] );
             document.getElementById('monitors-area').appendChild(monitorDiv);
 
             var chart = this.createChartAndAppend(obj, monitorDiv)
-
-            // var data = this.initDataForChart(obj['history']);
-
-
-            // // Init Charts
-            // var monitorCanvas = document.createElement('canvas');
-            // monitorCanvas.classList.add('monitor-canvas')
-            // monitorDiv.appendChild(monitorCanvas);
-
-            // var ctx = monitorCanvas.getContext("2d");
-            // var options = this.fillOptions();
-            // var newChart = new Chart(ctx).Line(data, options);
-
 
             chart.update();
 
@@ -99,18 +81,22 @@ WebSocketHandler.prototype.initData = function(message)
     else {
         console.log('Nothing stored in the server.');
     }
-
-
-
-
 }
 
 WebSocketHandler.prototype.addMonitor = function(message)
 {
     var id = JSON.parse(message.content);
     console.log('adding ' + id);
-    var monitorDiv = createMonitorDiv( id );
+    
+    var monitorDiv = createMonitorDiv(id);
     document.getElementById('monitors-area').appendChild(monitorDiv);
+
+    var monitorCanvas = createMonitorCanvas(id)
+
+    var clientStats = { id: id, history: [] };
+    var chart = this.createChartAndAppend(clientStats, monitorDiv);
+
+    this.charts[id] = chart;
 }
 
 WebSocketHandler.prototype.removeMonitor = function(message)
@@ -131,72 +117,22 @@ function createMonitorDiv(id)
     return monitorDiv;
 }
 
-WebSocketHandler.prototype.fillOptions= function()
+function createMonitorCanvas(id)
 {
-    var options = {
-
-    
-    ///Boolean - Whether grid lines are shown across the chart
-    // scaleShowGridLines : true,
-
-    // //String - Colour of the grid lines
-    // scaleGridLineColor : "rgba(0,0,0,.05)",
-
-    // //Number - Width of the grid lines
-    // scaleGridLineWidth : 1,
-
-    // //Boolean - Whether to show horizontal lines (except X axis)
-    // scaleShowHorizontalLines: true,
-
-    // //Boolean - Whether to show vertical lines (except Y axis)
-    // scaleShowVerticalLines: true,
-
-    // //Boolean - Whether the line is curved between points
-    // bezierCurve : true,
-
-    // //Number - Tension of the bezier curve between points
-    // bezierCurveTension : 0.4,
-
-    // //Boolean - Whether to show a dot for each point
-    // pointDot : true,
-
-    // //Number - Radius of each point dot in pixels
-    // pointDotRadius : 4,
-
-
-    // //Number - Pixel width of point dot stroke
-    // pointDotStrokeWidth : 1,
-
-    // //Number - amount extra to add to the radius to cater for hit detection outside the drawn point
-    // pointHitDetectionRadius : 20,
-
-    // //Boolean - Whether to show a stroke for datasets
-    // datasetStroke : true,
-
-    // //Number - Pixel width of dataset stroke
-    // datasetStrokeWidth : 2,
-
-    // //Boolean - Whether to fill the dataset with a colour
-    // datasetFill : true,
-
-    // //String - A legend template
-    // legendTemplate : "<ul class=\"<%=name.toLowerCase()%>-legend\"><% for (var i=0; i<datasets.length; i++){%><li><span style=\"background-color:<%=datasets[i].strokeColor%>\"></span><%if(datasets[i].label){%><%=datasets[i].label%><%}%></li><%}%></ul>"
-
-    };
-
-    return options;
+    var monitorCanvas = document.createElement('canvas');
+    monitorCanvas.classList.add('monitor-canvas');
+    monitorCanvas.id = 'canvas_' + id;
+    return monitorCanvas;
 }
 
 WebSocketHandler.prototype.createChartAndAppend = function(clientStats, divToAppendTo)
 {
     var data = this.initDataForChart(clientStats['history']);
 
-    var monitorCanvas = document.createElement('canvas');
-    monitorCanvas.classList.add('monitor-canvas')
+    var monitorCanvas = createMonitorCanvas( clientStats['id'] )
 
     var ctx = monitorCanvas.getContext("2d");
-    var options = this.fillOptions();
-    var newChart = new Chart(ctx).Line(data, options);
+    var newChart = new Chart(ctx).Line(data);
     
     divToAppendTo.appendChild(monitorCanvas);
 
@@ -207,22 +143,14 @@ WebSocketHandler.prototype.initDataForChart = function(usageHistory)
 {
     var data = JSON.parse(JSON.stringify(CHART_FORMAT));
 
-    console.log('ALL USAGE FOR GIVEN USER');
-    printJSON(usageHistory);
-
     for(var i  = 0; i < usageHistory.length; i++)
     {
         var stats = usageHistory[i];
-        console.log('EACH INDIVIDUAL USAGE');
-        printJSON(stats);
 
         data['labels'].push( stats['timestamp'] );
         data['datasets'][0]['data'].push( stats['cpu-usage'] );
         data['datasets'][1]['data'].push( stats['memory-usage'] );
     }
-
-    console.log('CHART DATA!');
-    printJSON(data);
 
     return data;
 }
@@ -230,7 +158,7 @@ WebSocketHandler.prototype.initDataForChart = function(usageHistory)
 
 WebSocketHandler.prototype.updateData = function(message)
 {
-    
+    var msg = JSON.parse(message.content);    
 }
 
 function printJSON(obj)
@@ -271,17 +199,3 @@ var CHART_FORMAT = {
 // Chart Options
 Chart.defaults.global.scaleFontSize = 8;
 Chart.defaults.global.scaleFontStyle = "bold";
-
-
-
-
-
-
-
-
-
-
-
-
-
-
