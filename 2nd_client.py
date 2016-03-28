@@ -8,18 +8,22 @@ import psutil
 # HOSTNAME = "ws://127.0.0.1:8080/websocket"
 HOSTNAME = "ws://192.168.0.100:8080/websocket"
 # HOSTNAME = "ws://45.55.193.149:8080/websocket"
+
 DELAY = 5
 CONN = False
 
 DATE_FORMAT = '{0:%Y-%m-%d %H:%M:%S}'
+cached_data = [];
 
 def on_message(ws, message):
     print("From server: " + str(message))
 
 def on_error(ws, error):
     print(error)
-    print('Retrying in ' + str(DELAY) + ' seconds')
-    time.sleep(DELAY)
+    print('\nRetrying in ' + str(DELAY) + ' seconds')
+    storage_data(DELAY, cached_data)
+    print(cached_data)
+
 
 
 def on_close(ws):
@@ -28,6 +32,7 @@ def on_close(ws):
 
 def on_open(ws):
     CONN = True
+
     msg = {'type' : 'new-connection', 'client-type' : 'hardware-client'}
     ws.send( json.dumps(msg) );
 
@@ -50,12 +55,16 @@ def gather_data(interval):
 
     return json.dumps(data)
 
+def storage_data(interval, data_list):
+    data = gather_data(interval)
+
+    data_list.append(data);
+
 
 if __name__ == "__main__":
     websocket.enableTrace(True)
 
     while not CONN:
-        print('try')
         ws = websocket.WebSocketApp(HOSTNAME,
                             on_message = on_message,
                             on_error = on_error,

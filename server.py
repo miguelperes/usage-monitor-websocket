@@ -126,16 +126,17 @@ class WebSocketHandler(tornado.websocket.WebSocketHandler):
 		return True
 
 	def open(self):
-		print("Incomming Connection: " + str(self.request.remote_ip))
+		print("\nON_OPEN: " + str(self.request.remote_ip))
 		#pass
  
 	def on_message(self, message):
 		#self.write_message(u"Your message was: " + message)
+		print("\nON_MESSAGE: ")
 		print(message)
 		self.process_request(message)
 
 	def on_close(self):
-		print("Closing connection with: " + str(self))
+		print("ON_CLOSE: " + str(self))
 		print("Codes: " + str(self.close_code) + " | " + str(self.close_reason))
 
 		Manager.logoffClient(self)
@@ -194,17 +195,17 @@ class Application(tornado.web.Application):
 def debugClientStatus():
 			
 	# os.system("clear")
-	print("\n\n")
-	print("\n\tTOTAL H-Clients: " + str(len(Manager.hwClients)))
-	print(Manager.hwClients)
-	print("\n\tTOTAL W-Clients: " + str(len(Manager.webClients)))
-	print(Manager.webClients)
-	print("\n\tClient Map:")
-	for cid, client in Manager.clientsMap.items():
-			print(cid, client)
-	print("\n\tIDs Map:")
-	for cid, client in Manager.idsMap.items():
-			print(cid, client)
+	# print("\n\n")
+	print("\tTOTAL H-Clients: " + str(len(Manager.hwClients)))
+	# print(Manager.hwClients)
+	print("\tTOTAL W-Clients: " + str(len(Manager.webClients)))
+	# print(Manager.webClients)
+	# print("\n\tClient Map:")
+	# for cid, client in Manager.clientsMap.items():
+	# 		print(cid, client)
+	# print("\n\tIDs Map:")
+	# for cid, client in Manager.idsMap.items():
+	# 		print(cid, client)
 
  
 if __name__ == '__main__':

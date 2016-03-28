@@ -60,7 +60,7 @@ WebSocketHandler.prototype.processMessage = function(message)
 
 WebSocketHandler.prototype.initData = function(message)
 {
-    console.log('CHECANCO BANCO DO SERVIDOR');
+    console.log('BOOT: GATHERING ALL DATA FROM SERVER');
     var content = JSON.parse(message.content)
     var list = content['client-list']; // List of all clients and their status history
 
@@ -86,7 +86,7 @@ WebSocketHandler.prototype.initData = function(message)
 
 WebSocketHandler.prototype.addMonitor = function(message)
 {
-    console.log('ADICIONANDO UM MONITOR' + id);
+    console.log('ADDING A NEW MONITOR - ID: ' + id);
     var id = JSON.parse(message.content);
     
     var monitorDiv = createMonitorDiv(id);
@@ -103,7 +103,7 @@ WebSocketHandler.prototype.addMonitor = function(message)
 WebSocketHandler.prototype.removeMonitor = function(message)
 {
     var id = JSON.parse(message.content);
-    console.log('removing ' +id);
+    console.log('REMOVING MONITOR - ID: ' +id);
 
     var monitorToRemove = document.getElementById('monitor_' + id);
     document.getElementById('monitors-area').removeChild(monitorToRemove);
@@ -171,8 +171,8 @@ WebSocketHandler.prototype.initDataForChart = function(usageHistory)
 
 WebSocketHandler.prototype.updateData = function(message)
 {
-    console.log('ATUALIZANDO DADOS');
     var monitorID   = message['id'];
+    console.log('UPDATING MONITOR - ID: ' + monitorID);
     var memoryUsage = message['content']['memory-usage'];
     var cpuUsage    = message['content']['cpu-usage'];
     var timestamp   = message['content']['timestamp'];
