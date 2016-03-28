@@ -3,6 +3,7 @@ function WebSocketHandler(serverAddress)
 	this.ws = new WebSocket(serverAddress); // WebSocket Object
     this.numberOfClients = 0;               // Number of clients using the python monitor app
     this.charts = {};
+    this.IPs = {};
 
 	this.initWebSocketCallbacks();
 }
@@ -44,7 +45,7 @@ WebSocketHandler.prototype.processMessage = function(message)
             this.addMonitor(msg);
             break;
 
-        case 'boot-usage-data':
+        case 'boot-usage-data': //First message received from the server
             this.initData(msg)
             break;
 
@@ -62,6 +63,7 @@ WebSocketHandler.prototype.initData = function(message)
 {
     console.log('BOOT: GATHERING ALL DATA FROM SERVER');
     var content = JSON.parse(message.content)
+    printJSON(content);
     var list = content['client-list']; // List of all clients and their status history
 
     if(list.length > 0){
@@ -71,12 +73,17 @@ WebSocketHandler.prototype.initData = function(message)
 
             var monitorDiv = createMonitorDiv( obj['id'] );
             document.getElementById('monitors-area').appendChild(monitorDiv);
+            
+            this.IPs[ obj['id'] ] = obj['ip'];
+            this.addMonitorInfo( monitorDiv, obj['ip'] );
 
             var chart = this.createChartAndAppend(obj, monitorDiv)
 
             chart.update();
 
             this.charts[ obj['id'] ] = chart;
+
+            
         }        
     }
     else {
@@ -91,6 +98,9 @@ WebSocketHandler.prototype.addMonitor = function(message)
     
     var monitorDiv = createMonitorDiv(id);
     document.getElementById('monitors-area').appendChild(monitorDiv);
+
+    this.IPs[ obj['id'] ] = obj['ip'];
+    this.addMonitorInfo( monitorDiv, obj['ip'] );
 
     var monitorCanvas = createMonitorCanvas(id)
 
@@ -193,7 +203,33 @@ WebSocketHandler.prototype.updateData = function(message)
     }
 }
 
-window.onresize = function(){ /*resizeCanvas()*/ }
+WebSocketHandler.prototype.updateCharts = function()
+{
+    console.log('updatecharts');
+    for(var i = 0; i < this.charts.length; i++)
+    {
+        this.charts[i].update();
+    }
+}
+
+WebSocketHandler.prototype.addMonitorInfo = function(monitorDiv, ip)
+{
+    infoDiv = document.createElement('div');
+    infoDiv.classList.add('monitor-info');
+    
+    titleSpan = document.createElement('span');
+    titleSpan.innerHTML = 'Host: ' + ip;
+    titleSpan.classList.add('monitor-title')
+
+    infoDiv.appendChild(titleSpan);
+    monitorDiv.appendChild(infoDiv);
+}
+
+window.onresize = function()
+{ 
+    /*resizeCanvas();
+    webSocket.updateCharts();*/
+}
 
 function printJSON(obj)
 {
@@ -214,8 +250,8 @@ function resizeCanvas()
         for(var j = 0; j < monitor.childNodes.length; j++)
         {
             var canvas = monitor.childNodes[j];
-            canvas.style.width = divWidth;
-            canvas.style.height = divHeight;
+            canvas.style.width = divWidth - 10;
+            canvas.style.height = divHeight - 10;
         }
     }
 }

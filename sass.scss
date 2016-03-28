@@ -25,12 +25,13 @@
   width: 100%;
   height: 30%;
   margin: 1%;
+  margin-bottom: 3%;
   box-sizing: border-box;
   background-color: #3223FF;
 }
 
 .monitor-canvas {
-	position: absolute;
+	position: relative;
     top: 15%;
 
 	border-radius: 5px;

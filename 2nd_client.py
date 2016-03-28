@@ -9,7 +9,7 @@ import psutil
 HOSTNAME = "ws://192.168.0.100:8080/websocket"
 # HOSTNAME = "ws://45.55.193.149:8080/websocket"
 
-DELAY = 2
+DELAY = 1
 CONN = False    # Current connection status
 
 DATE_FORMAT = '{0:%Y-%m-%d %H:%M:%S}'
@@ -39,9 +39,9 @@ def on_open(ws):
     if len(cached_data) > 0:
         send_cached_data(ws, cached_data)
 
-    # while True:
-    #     usage_status = gather_data(3)
-    #     ws.send( usage_status )
+    while True:
+        usage_status = gather_data(5)
+        ws.send( usage_status )
 
     #ws.close()
 

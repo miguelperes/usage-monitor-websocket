@@ -28,12 +28,16 @@ class Manager():
 
 		clientID = Manager.getNextClientID()
 
+		# Register and identify client
 		Manager.clientsMap[clientID] = client
 		Manager.idsMap[client] = clientID
-
 		Manager.hwClients.append(client)
 
-		msg = { 'type' : 'new-hwclient', 'content' : clientID } #Send ID of new client
+		# storedCache = Manager.getStoredCache(clientID)
+		# print(json.dumps(storedCache))
+
+		#Send ID and IP of new client
+		msg = { 'type' : 'new-hwclient', 'content' : clientID, 'ip' : client.request.remote_ip }
 		Manager.broadcastToWebClients(msg)
 
 	def logoffClient(client):
@@ -62,8 +66,9 @@ class Manager():
 
 	def composeMessage(msg, clientSocket):
 		clientID = Manager.idsMap[clientSocket]
+		clientIP = clientSocket.request.remote_ip
 
-		Manager.updateDataStorage(clientID, msg)
+		Manager.updateDataStorage(clientID, clientIP, msg)
 
 		message = { 'type': 'usage-update', 'id': clientID, 'content': msg }
 
@@ -75,23 +80,26 @@ class Manager():
 
 	def processCachedData(msg, clientSocket):
 		clientID = Manager.idsMap[clientSocket]
+		clientIP = clientSocket.request.remote_ip
 
 		dataList = msg['data']
 		# Store all data
 		for i in range(len(dataList)):
-			Manager.updateDataStorage(clientID, json.loads(dataList[i]))
+			encodedData = json.loads(dataList[i])
+			Manager.updateDataStorage(clientID, clientIP, encodedData)
+			Manager.broadcastToWebClients(encodedData) # overhead?
+
 
 	def broadcastToWebClients(message):
 		for wClient in Manager.webClients:
 			wClient.write_message(message)
 
-	def updateDataStorage(clientID, msg):
-		print("\nUPDATE MSG: ")
-		print(msg)
+	def updateDataStorage(clientID, clientIP, msg):
 		if not Manager.checkForClientInStorage(clientID):
-			obj = { 'id' : clientID, 'history' : [] }
+			obj = { 'id' : clientID, 'ip': clientIP, 'history' : [] }
 			obj['history'].append(msg)
 			Manager.usageData['client-list'].append(obj)
+		
 		else:
 			clientObj = Manager.getClientObjFromList(clientID)
 			if clientObj != -1:
@@ -128,6 +136,15 @@ class Manager():
 			cList.remove(objToRemove)
 		else:
 			print("Client not stored.")
+
+	def getStoredCache(clientID):
+		client = Manager.getClientObjFromList(clientID)
+
+		if client != -1:
+			return client['history']
+		else:
+			return []
+
 			
  
 class WebSocketHandler(tornado.websocket.WebSocketHandler):
@@ -144,7 +161,6 @@ class WebSocketHandler(tornado.websocket.WebSocketHandler):
 		print("\nON_MESSAGE: ")
 		print(message)
 		self.process_request(message)
-		print(Manager.usageData)
 
 	def on_close(self):
 		print("ON_CLOSE: " + str(self))
@@ -177,8 +193,6 @@ class WebSocketHandler(tornado.websocket.WebSocketHandler):
 		elif request == 'usage-data':
 			reply = Manager.composeMessage(msg, self)
 			Manager.broadcastToWebClients(reply)
-			print(Manager.usageData)
-			print("\n")
 
 		elif request == 'cached-data':
 			Manager.processCachedData(msg, self)
