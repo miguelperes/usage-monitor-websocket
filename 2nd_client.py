@@ -9,8 +9,8 @@ import psutil
 HOSTNAME = "ws://192.168.0.100:8080/websocket"
 # HOSTNAME = "ws://45.55.193.149:8080/websocket"
 
-DELAY = 5
-CONN = False
+DELAY = 2
+CONN = False    # Current connection status
 
 DATE_FORMAT = '{0:%Y-%m-%d %H:%M:%S}'
 cached_data = [];
@@ -27,24 +27,21 @@ def on_error(ws, error):
 
 
 def on_close(ws):
+    CONN = False
     print("### client closed ###")
 
 
 def on_open(ws):
     CONN = True
 
-    # msg = {'type' : 'new-connection', 'client-type' : 'hardware-client'}
-    # ws.send( json.dumps(msg) );
-
     login(ws)
 
     if len(cached_data) > 0:
-        print("CACHED DATA TO SEND");
         send_cached_data(ws, cached_data)
 
-    while True:
-        usage_status = gather_data(5)
-        ws.send( usage_status )
+    # while True:
+    #     usage_status = gather_data(3)
+    #     ws.send( usage_status )
 
     #ws.close()
 
@@ -55,6 +52,7 @@ def login(ws):
 def send_cached_data(ws, cached_data):
     msg = { 'type' : 'cached-data', 'data' : cached_data }
     ws.send( json.dumps(msg) );
+    del cached_data[:]
 
 def gather_data(interval):
     cpu_usage = psutil.cpu_percent( interval )

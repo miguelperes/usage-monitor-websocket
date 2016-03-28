@@ -73,11 +73,21 @@ class Manager():
 
 		return json.dumps(message)
 
+	def processCachedData(msg, clientSocket):
+		clientID = Manager.idsMap[clientSocket]
+
+		dataList = msg['data']
+		# Store all data
+		for i in range(len(dataList)):
+			Manager.updateDataStorage(clientID, json.loads(dataList[i]))
+
 	def broadcastToWebClients(message):
 		for wClient in Manager.webClients:
 			wClient.write_message(message)
 
 	def updateDataStorage(clientID, msg):
+		print("\nUPDATE MSG: ")
+		print(msg)
 		if not Manager.checkForClientInStorage(clientID):
 			obj = { 'id' : clientID, 'history' : [] }
 			obj['history'].append(msg)
@@ -134,6 +144,7 @@ class WebSocketHandler(tornado.websocket.WebSocketHandler):
 		print("\nON_MESSAGE: ")
 		print(message)
 		self.process_request(message)
+		print(Manager.usageData)
 
 	def on_close(self):
 		print("ON_CLOSE: " + str(self))
@@ -166,9 +177,11 @@ class WebSocketHandler(tornado.websocket.WebSocketHandler):
 		elif request == 'usage-data':
 			reply = Manager.composeMessage(msg, self)
 			Manager.broadcastToWebClients(reply)
+			print(Manager.usageData)
+			print("\n")
 
 		elif request == 'cached-data':
-			print("RECEIVED CACHED DATA")
+			Manager.processCachedData(msg, self)
 
 		else:
 			print('request: ' + str(request) + ' is not a valid request')
@@ -209,6 +222,9 @@ def debugClientStatus():
 	# print("\n\tIDs Map:")
 	# for cid, client in Manager.idsMap.items():
 	# 		print(cid, client)
+
+def printJSON(json):
+	print(json.dumps(json, indent=4, sort_keys=True))
 
  
 if __name__ == '__main__':
