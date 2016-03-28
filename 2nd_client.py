@@ -1,4 +1,5 @@
 import datetime
+import time
 import json
 
 import websocket
@@ -7,15 +8,18 @@ import psutil
 # HOSTNAME = "ws://127.0.0.1:8080/websocket"
 HOSTNAME = "ws://192.168.0.100:8080/websocket"
 # HOSTNAME = "ws://45.55.193.149:8080/websocket"
+DELAY = 5
+CONN = False
 
 DATE_FORMAT = '{0:%Y-%m-%d %H:%M:%S}'
 
 def on_message(ws, message):
     print("From server: " + str(message))
 
-
 def on_error(ws, error):
     print(error)
+    print('Retrying in ' + str(DELAY) + ' seconds')
+    time.sleep(DELAY)
 
 
 def on_close(ws):
@@ -23,7 +27,7 @@ def on_close(ws):
 
 
 def on_open(ws):
-    
+    CONN = True
     msg = {'type' : 'new-connection', 'client-type' : 'hardware-client'}
     ws.send( json.dumps(msg) );
 
@@ -49,13 +53,27 @@ def gather_data(interval):
 
 if __name__ == "__main__":
     websocket.enableTrace(True)
-    ws = websocket.WebSocketApp(HOSTNAME,
-                                on_message = on_message,
-                                on_error = on_error,
-                                on_close = on_close)
 
-    ws.on_open = on_open
-    ws.run_forever()
+    while not CONN:
+        print('try')
+        ws = websocket.WebSocketApp(HOSTNAME,
+                            on_message = on_message,
+                            on_error = on_error,
+                            on_close = on_close)
+
+        ws.on_open = on_open
+        ws.run_forever()
+
+
+
+
+    # ws = websocket.WebSocketApp(HOSTNAME,
+    #                             on_message = on_message,
+    #                             on_error = on_error,
+    #                             on_close = on_close)
+
+    # ws.on_open = on_open
+    # ws.run_forever()
 
     
 
