@@ -33,15 +33,28 @@ def on_close(ws):
 def on_open(ws):
     CONN = True
 
-    msg = {'type' : 'new-connection', 'client-type' : 'hardware-client'}
-    ws.send( json.dumps(msg) );
+    # msg = {'type' : 'new-connection', 'client-type' : 'hardware-client'}
+    # ws.send( json.dumps(msg) );
 
+    login(ws)
+
+    if len(cached_data) > 0:
+        print("CACHED DATA TO SEND");
+        send_cached_data(ws, cached_data)
 
     while True:
         usage_status = gather_data(5)
         ws.send( usage_status )
 
     #ws.close()
+
+def login(ws):
+    msg = {'type' : 'new-connection', 'client-type' : 'hardware-client'}
+    ws.send( json.dumps(msg) );
+
+def send_cached_data(ws, cached_data):
+    msg = { 'type' : 'cached-data', 'data' : cached_data }
+    ws.send( json.dumps(msg) );
 
 def gather_data(interval):
     cpu_usage = psutil.cpu_percent( interval )
@@ -57,7 +70,6 @@ def gather_data(interval):
 
 def storage_data(interval, data_list):
     data = gather_data(interval)
-
     data_list.append(data);
 
 

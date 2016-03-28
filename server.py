@@ -167,6 +167,9 @@ class WebSocketHandler(tornado.websocket.WebSocketHandler):
 			reply = Manager.composeMessage(msg, self)
 			Manager.broadcastToWebClients(reply)
 
+		elif request == 'cached-data':
+			print("RECEIVED CACHED DATA")
+
 		else:
 			print('request: ' + str(request) + ' is not a valid request')
 			reply = { 'type' : 'connected-clients', 'content' : 'INVALID' }
