@@ -1,15 +1,22 @@
 // http://www.sassmeister.com/
 
+body {
+	background: url("images/darkbg2.png") repeat;
+	font-family: Ultra, Futura, 'Trebuchet MS', Arial, sans-serif;
+}
+
 #main {
-	background-color: aquamarine;
-	// background-image: url('images/noisy_grid.png') repeat;
+	// background-color: aquamarine;
+	// background: url('images/noisy.png') repeat;
  	width: 100%;
  	height: 100%;
 }
 
 #title {
-	font-family: Ultra, Futura, 'Trebuchet MS', Arial, sans-serif;
+	// font-family: Ultra, Futura, 'Trebuchet MS', Arial, sans-serif;
 	text-align: center;
+	color: white;
+	font-size: 3em;
 }
 
 #monitors-area {
@@ -23,16 +30,51 @@
 
 .monitor {
   width: 100%;
-  height: 30%;
+  height: 40%;
   margin: 1%;
-  margin-bottom: 3%;
+  margin-bottom: 0;
+  border-radius: 5px;
   box-sizing: border-box;
-  background-color: #3223FF;
+  background-color: rgba(109, 105, 105, 0.8);
+}
+
+.monitor-info {
+	position: relative;
+	left: 38%;
+	top: 3%;
+}
+
+.monitor-title {
+	font-size: 1.3em;
+}
+
+#about {
+    color: black;
+    text-align: center;
+    border-radius: 5px;
+    background-color: rgba(109, 105, 105, 0.8);
+    padding: 1%;
+    margin-bottom: 1%;
+}
+
+#empty {
+	background: url("images/noconnections.png") no-repeat center center;
+	visibility: visible;
+	width: 100%;
+	height:50%;
+	// background-color: #A620B9;
 }
 
 .monitor-canvas {
-	position: relative;
-    top: 15%;
+	// position: relative;
+    // top: 15%;
+    box-sizing: border-box;
+    display: block;
+    padding-left: 0;
+    padding-right: 0;
+    margin-left: auto;
+    margin-right: auto;
+    margin-top: 1%;
 
 	border-radius: 5px;
   	background-color: #FFFFFF;

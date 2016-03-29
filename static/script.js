@@ -5,15 +5,13 @@ var webSocket;
 
 window.onload = function()
 {
-    connectToWS();
-}
-    
-
-function connectToWS() {
     webSocket = new WebSocketHandler(SERVER_ADRESS);
 
-}
+    var monitorsArea = document.getElementById('monitors-area');
+    console.log(monitorsArea.childNodes.length);
 
-function sendMsg() {
-    WebSocket.ws.send(document.getElementById('msg').value);
+    if( !monitorsArea.hasChildNodes() )
+    {
+    	webSocket.nobodyConnected();
+    }
 }
