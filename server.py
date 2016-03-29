@@ -37,7 +37,7 @@ class Manager():
 		# print(json.dumps(storedCache))
 
 		#Send ID and IP of new client
-		msg = { 'type' : 'new-hwclient', 'content' : clientID, 'ip' : client.request.remote_ip }
+		msg = { 'type' : 'new-hwclient', 'content' : clientID, 'ip' : str(client.request.remote_ip) }
 		Manager.broadcastToWebClients(msg)
 
 	def logoffClient(client):
@@ -96,7 +96,7 @@ class Manager():
 
 	def updateDataStorage(clientID, clientIP, msg):
 		if not Manager.checkForClientInStorage(clientID):
-			obj = { 'id' : clientID, 'ip': clientIP, 'history' : [] }
+			obj = { 'id' : clientID, 'ip': str(clientIP), 'history' : [] }
 			obj['history'].append(msg)
 			Manager.usageData['client-list'].append(obj)
 		
