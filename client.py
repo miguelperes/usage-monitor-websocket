@@ -5,24 +5,25 @@ import json
 import websocket
 import psutil
 
-# HOSTNAME = "ws://45.55.193.149:8080/websocket"
-HOSTNAME = "ws://192.168.0.100:8080/websocket"      # Insert server address here
+HOSTNAME = "ws://45.55.193.149:8080/websocket"
+# HOSTNAME = "ws://192.168.0.100:8080/websocket"      # Insert server address here
 
 GATHER_INTERVAL       = 5
-CACHE_GATHER_INTERVAL = 5
+CACHE_GATHER_INTERVAL = 1
 CONN                  = False           # Current connection status
 
 DATE_FORMAT = '{0:%Y-%m-%d %H:%M:%S}'
 cached_data = [];
 
 def on_message(ws, message):
-    print("From server: " + str(message))
+    pass
 
 def on_error(ws, error):
     print(error)
-    print('\nRetrying in ' + str(CACHE_GATHER_INTERVAL) + ' seconds')
+    print('\nRetrying in ' + str(CACHE_GATHER_INTERVAL) + ' seconds...')
+    print('[ Storing data to send when connection is stablished ]')
     storage_data(CACHE_GATHER_INTERVAL, cached_data)
-    print(cached_data)
+
 
 def on_close(ws):
     CONN = False

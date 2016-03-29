@@ -80,8 +80,9 @@ class Manager():
 		# Store all data
 		for i in range(len(dataList)):
 			encodedData = json.loads(dataList[i])
+			print(encodedData)
 			Manager.updateDataStorage(clientID, clientIP, encodedData)
-			Manager.broadcastToWebClients(encodedData) # overhead?
+			Manager.broadcastToWebClients(encodedData)
 
 
 	def broadcastToWebClients(message):
@@ -195,6 +196,8 @@ class WebSocketHandler(tornado.websocket.WebSocketHandler):
 		# CACHED DATA RECEIVED
 		elif request == 'cached-data':
 			Manager.processCachedData(msg, self)
+			cachedMsg = { 'id': Manager.idsMap[self], 'type': 'cached-data', 'content': msg['data'] }
+			Manager.broadcastToWebClients( json.dumps(cachedMsg) );
 
 		# INVALID MESSAGE
 		else:

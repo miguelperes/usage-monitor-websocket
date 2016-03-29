@@ -53,9 +53,13 @@ WebSocketHandler.prototype.processMessage = function(message)
             this.updateData(msg);
             break;
 
+        case 'cached-data':
+            this.getCachedData(msg);
+            break;
+
         default:
             console.log('ERROR: Invalid message from server');
-            console.log(msg);
+            // console.log(msg);
     }
 }
 
@@ -134,21 +138,37 @@ WebSocketHandler.prototype.removeMonitor = function(message)
     }
 }
 
-function createMonitorDiv(id)
+WebSocketHandler.prototype.getCachedData = function(message)
 {
-    monitorDiv = document.createElement('div');
-    monitorDiv.classList.add('monitor');
-    monitorDiv.id = 'monitor_' + id;
+    console.log('GETTIN CACHE');
+    console.log(message);
+    console.log('TEST2');
+    // console.log(message.data);
+    console.log(message.content);
+    
+    var clientID = message.id;
+    var dataList = message.content;
 
-    return monitorDiv;
-}
+    for(var i = 0; i < dataList.length; i++)
+    {
+        decodedData = JSON.parse(dataList[i]);
+        console.log('TEST3');
+        console.log(decodedData);
+        var memoryUsage = decodedData['memory-usage'];
+        var cpuUsage    = decodedData['cpu-usage'];
+        var timestamp   = decodedData['timestamp'];
 
-function createMonitorCanvas(id)
-{
-    var monitorCanvas = document.createElement('canvas');
-    monitorCanvas.classList.add('monitor-canvas');
-    monitorCanvas.id = 'canvas_' + id;
-    return monitorCanvas;
+        var chart = this.charts[clientID];
+        if(chart)
+        {
+            chart.addData([cpuUsage, memoryUsage], timestamp);
+            chart.update();
+        }
+        else
+        {
+            location.reload();
+        }
+    }    
 }
 
 WebSocketHandler.prototype.createChartAndAppend = function(clientStats, divToAppendTo)
@@ -246,6 +266,22 @@ WebSocketHandler.prototype.hasConnection = function()
     document.getElementById('monitors-area').removeChild(noConn);
 }
 
+function createMonitorDiv(id)
+{
+    monitorDiv = document.createElement('div');
+    monitorDiv.classList.add('monitor');
+    monitorDiv.id = 'monitor_' + id;
+
+    return monitorDiv;
+}
+
+function createMonitorCanvas(id)
+{
+    var monitorCanvas = document.createElement('canvas');
+    monitorCanvas.classList.add('monitor-canvas');
+    monitorCanvas.id = 'canvas_' + id;
+    return monitorCanvas;
+}
 
 
 window.onresize = function()
