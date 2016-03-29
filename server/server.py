@@ -33,9 +33,6 @@ class Manager():
 		Manager.idsMap[client] = clientID
 		Manager.hwClients.append(client)
 
-		# storedCache = Manager.getStoredCache(clientID)
-		# print(json.dumps(storedCache))
-
 		#Send ID and IP of new client
 		msg = { 'type' : 'new-hwclient', 'content' : clientID, 'ip' : str(client.request.remote_ip) }
 		Manager.broadcastToWebClients(msg)
@@ -72,10 +69,6 @@ class Manager():
 
 		message = { 'type': 'usage-update', 'id': clientID, 'content': msg }
 
-		# print(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
-		# print(json.dumps(Manager.usageData, sort_keys=True, indent=4))
-		# print(json.dumps(message, sort_keys=True, indent=4))
-
 		return json.dumps(message)
 
 	def processCachedData(msg, clientSocket):
@@ -83,6 +76,7 @@ class Manager():
 		clientIP = clientSocket.request.remote_ip
 
 		dataList = msg['data']
+		
 		# Store all data
 		for i in range(len(dataList)):
 			encodedData = json.loads(dataList[i])
@@ -93,6 +87,7 @@ class Manager():
 	def broadcastToWebClients(message):
 		for wClient in Manager.webClients:
 			wClient.write_message(message)
+
 
 	def updateDataStorage(clientID, clientIP, msg):
 		if not Manager.checkForClientInStorage(clientID):
@@ -106,9 +101,7 @@ class Manager():
 				clientObj['history'].append(msg)
 			else:
 				print('@ERROR: CLIENT NOT FOUND')
-			
-		# print('@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@')
-		# print(Manager.checkForClientInStorage(clientID))
+
 
 	def checkForClientInStorage(clientID):
 		cList = Manager.usageData['client-list']
@@ -117,12 +110,14 @@ class Manager():
 				return True
 		return False
 
+
 	def getClientObjFromList(clientID):
 		cList = Manager.usageData['client-list']
 		for i in range(len(cList)):
 			if cList[i]['id'] == clientID:
 				return cList[i]
 		return -1
+
 
 	def removeFromStorage(clientID):
 		cList = Manager.usageData['client-list']
@@ -136,6 +131,7 @@ class Manager():
 			cList.remove(objToRemove)
 		else:
 			print("Client not stored.")
+
 
 	def getStoredCache(clientID):
 		client = Manager.getClientObjFromList(clientID)
@@ -152,26 +148,27 @@ class WebSocketHandler(tornado.websocket.WebSocketHandler):
 	def check_origin(self, origin):
 		return True
 
+
 	def open(self):
 		print("\nON_OPEN: " + str(self.request.remote_ip))
 		#pass
+
  
 	def on_message(self, message):
-		#self.write_message(u"Your message was: " + message)
 		print("\nON_MESSAGE: ")
 		print(message)
 		self.process_request(message)
 
+
 	def on_close(self):
 		print("ON_CLOSE: " + str(self))
 		print("Codes: " + str(self.close_code) + " | " + str(self.close_reason))
-
 		Manager.logoffClient(self)
-		#pass
+
 
 	def process_request(self, message):
 		msg = json.loads(message)
-		request = msg['type']	#TODO: VALIDATE MSG
+		request = msg['type']
 		
 		# NEW CONNECTION
 		if request == 'new-connection':
@@ -190,25 +187,28 @@ class WebSocketHandler(tornado.websocket.WebSocketHandler):
 
 			debugClientStatus()
 
+		# DATA RECEIVED
 		elif request == 'usage-data':
 			reply = Manager.composeMessage(msg, self)
 			Manager.broadcastToWebClients(reply)
 
+		# CACHED DATA RECEIVED
 		elif request == 'cached-data':
 			Manager.processCachedData(msg, self)
 
+		# INVALID MESSAGE
 		else:
 			print('request: ' + str(request) + ' is not a valid request')
 			reply = { 'type' : 'connected-clients', 'content' : 'INVALID' }
 			self.write_message( reply )
+
+
  
 class IndexPageHandler(tornado.web.RequestHandler):
 	def get(self):
 		self.render("index.html")
-		#print(self.request)
-		#self.write(self.request)
  
- 
+
 class Application(tornado.web.Application):
 	def __init__(self):
 		handlers = [
@@ -221,6 +221,7 @@ class Application(tornado.web.Application):
 			'static_path': 'static'
 		}
 		tornado.web.Application.__init__(self, handlers, **settings)
+
 
 def debugClientStatus():
 			
@@ -236,6 +237,7 @@ def debugClientStatus():
 	# print("\n\tIDs Map:")
 	# for cid, client in Manager.idsMap.items():
 	# 		print(cid, client)
+
 
 def printJSON(json):
 	print(json.dumps(json, indent=4, sort_keys=True))

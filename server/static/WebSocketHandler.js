@@ -163,7 +163,7 @@ WebSocketHandler.prototype.createChartAndAppend = function(clientStats, divToApp
     monitorCanvas.height = divHeight - (divHeight*0.2);
 
     var ctx = monitorCanvas.getContext("2d");
-    var newChart = new Chart(ctx).Line(data);
+    var newChart = new Chart(ctx).Line(data, {pointDot: false});
     
     divToAppendTo.appendChild(monitorCanvas);
 

@@ -32,7 +32,8 @@ var CHART_FORMAT = {
     Chart.defaults.global.scaleFontSize = 8;
     Chart.defaults.global.scaleFontStyle = "bold";
 
-    Chart.defaults.global.pointDotRadius = 1;
+    // Chart.defaults.global.pointDotRadius = 1;
+    Chart.defaults.global.pointDot=false;
     Chart.defaults.global.scaleOverride=true;
     Chart.defaults.global.scaleSteps=20;
     Chart.defaults.global.scaleStartValue=0;

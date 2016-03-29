@@ -5,12 +5,12 @@ import json
 import websocket
 import psutil
 
-# HOSTNAME = "ws://127.0.0.1:8080/websocket"
-# HOSTNAME = "ws://192.168.0.100:8080/websocket"
-HOSTNAME = "ws://45.55.193.149:8080/websocket"
+# HOSTNAME = "ws://45.55.193.149:8080/websocket"
+HOSTNAME = "ws://192.168.0.100:8080/websocket"      # Insert server address here
 
-DELAY = 1
-CONN = False    # Current connection status
+GATHER_INTERVAL       = 5
+CACHE_GATHER_INTERVAL = 5
+CONN                  = False           # Current connection status
 
 DATE_FORMAT = '{0:%Y-%m-%d %H:%M:%S}'
 cached_data = [];
@@ -20,16 +20,13 @@ def on_message(ws, message):
 
 def on_error(ws, error):
     print(error)
-    print('\nRetrying in ' + str(DELAY) + ' seconds')
-    storage_data(DELAY, cached_data)
+    print('\nRetrying in ' + str(CACHE_GATHER_INTERVAL) + ' seconds')
+    storage_data(CACHE_GATHER_INTERVAL, cached_data)
     print(cached_data)
-
-
 
 def on_close(ws):
     CONN = False
     print("### client closed ###")
-
 
 def on_open(ws):
     CONN = True
@@ -40,7 +37,7 @@ def on_open(ws):
         send_cached_data(ws, cached_data)
 
     while True:
-        usage_status = gather_data(5)
+        usage_status = gather_data(GATHER_INTERVAL)
         ws.send( usage_status )
 
     #ws.close()
@@ -82,17 +79,6 @@ if __name__ == "__main__":
 
         ws.on_open = on_open
         ws.run_forever()
-
-
-
-
-    # ws = websocket.WebSocketApp(HOSTNAME,
-    #                             on_message = on_message,
-    #                             on_error = on_error,
-    #                             on_close = on_close)
-
-    # ws.on_open = on_open
-    # ws.run_forever()
 
     
 
