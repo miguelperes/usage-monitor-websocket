@@ -7,11 +7,10 @@ window.onload = function()
 {
     webSocket = new WebSocketHandler(SERVER_ADRESS);
 
-    var monitorsArea = document.getElementById('monitors-area');
-    console.log(monitorsArea.childNodes.length);
+    // var monitorsArea = document.getElementById('monitors-area');
 
-    if( !monitorsArea.hasChildNodes() )
-    {
-    	webSocket.nobodyConnected();
-    }
+    // if( !monitorsArea.hasChildNodes() )
+    // {
+    // 	webSocket.nobodyConnected();
+    // }
 }

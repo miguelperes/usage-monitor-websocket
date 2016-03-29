@@ -80,7 +80,6 @@ class Manager():
 		# Store all data
 		for i in range(len(dataList)):
 			encodedData = json.loads(dataList[i])
-			print(encodedData)
 			Manager.updateDataStorage(clientID, clientIP, encodedData)
 			Manager.broadcastToWebClients(encodedData)
 
@@ -156,8 +155,8 @@ class WebSocketHandler(tornado.websocket.WebSocketHandler):
 
  
 	def on_message(self, message):
-		print("\nON_MESSAGE: ")
-		print(message)
+		# print("\nON_MESSAGE: ")
+		# print(message)
 		self.process_request(message)
 
 
@@ -176,11 +175,11 @@ class WebSocketHandler(tornado.websocket.WebSocketHandler):
 			clientType = msg['client-type']
 			
 			if clientType == 'hardware-client':
-				print('\tAdding a hardware client: ' + str(self))
+				# print('\tAdding a hardware client: ' + str(self))
 				Manager.signupClient(self)
 
 			elif clientType == 'web-client':
-				print('\tAdding a web client: ' + str(self))
+				# print('\tAdding a web client: ' + str(self))
 				Manager.webClients.append(self)
 				
 				reply = { 'type' : 'boot-usage-data', 'content' : json.dumps(Manager.usageData) }

@@ -31,6 +31,9 @@ def on_close(ws):
 
 def on_open(ws):
     CONN = True
+    print("[ Connected to " + str(HOSTNAME) + " ]")
+    print("[ Retrieving information every " + str(GATHER_INTERVAL) + " seconds ]" )
+    print("[ When offline, caching data every " + str(CACHE_GATHER_INTERVAL) + " seconds ]\n" )
 
     login(ws)
 
@@ -39,6 +42,7 @@ def on_open(ws):
 
     while True:
         usage_status = gather_data(GATHER_INTERVAL)
+        print("Sendind collected CPU and memory usage...")
         ws.send( usage_status )
 
     #ws.close()
@@ -49,6 +53,7 @@ def login(ws):
 
 def send_cached_data(ws, cached_data):
     msg = { 'type' : 'cached-data', 'data' : cached_data }
+    print("Sending cached data...")
     ws.send( json.dumps(msg) );
     del cached_data[:]
 
@@ -70,7 +75,7 @@ def storage_data(interval, data_list):
 
 
 if __name__ == "__main__":
-    websocket.enableTrace(True)
+    websocket.enableTrace(False)
 
     while not CONN:
         ws = websocket.WebSocketApp(HOSTNAME,

@@ -33,7 +33,7 @@ WebSocketHandler.prototype.processMessage = function(message)
     var msg = JSON.parse(message);
 
     var msgType = msg['type'];
-    console.log(msgType);
+    // console.log(msgType);
 
     switch(msgType)
     {
@@ -59,7 +59,7 @@ WebSocketHandler.prototype.processMessage = function(message)
 
         default:
             console.log('ERROR: Invalid message from server');
-            // console.log(msg);
+            console.log(msg);
     }
     
     // checkForConnections();
@@ -67,9 +67,8 @@ WebSocketHandler.prototype.processMessage = function(message)
 
 WebSocketHandler.prototype.initData = function(message)
 {
-    console.log('BOOT: GATHERING ALL DATA FROM SERVER');
-    var content = JSON.parse(message.content)
-    // printJSON(content);
+    // console.log('BOOT: GATHERING ALL DATA FROM SERVER');
+    var content = JSON.parse(message.content);
     var list = content['client-list']; // List of all clients and their status history
 
     if(list.length > 0){
@@ -93,16 +92,17 @@ WebSocketHandler.prototype.initData = function(message)
 
     }
     else {
-        console.log('Nothing stored in the server.');
+        // console.log('Nothing stored in the server.');
+        checkForConnections();
     }
+
 }
 
 WebSocketHandler.prototype.addMonitor = function(message)
 {
-    // console.log(JSON.stringify(message));
     var id = JSON.parse(message.content);
     var ip = message.ip;
-    console.log('ADDING A NEW MONITOR - ID: ' + id);
+    // console.log('ADDING A NEW MONITOR - ID: ' + id);
 
     this.hasConnection();
     
@@ -123,7 +123,7 @@ WebSocketHandler.prototype.addMonitor = function(message)
 WebSocketHandler.prototype.removeMonitor = function(message)
 {
     var id = JSON.parse(message.content);
-    console.log('REMOVING MONITOR - ID: ' +id);
+    // console.log('REMOVING MONITOR - ID: ' +id);
 
     var monitorToRemove = document.getElementById('monitor_' + id);
     
@@ -146,20 +146,13 @@ WebSocketHandler.prototype.removeMonitor = function(message)
 
 WebSocketHandler.prototype.getCachedData = function(message)
 {
-    console.log('GETTIN CACHE');
-    console.log(message);
-    console.log('TEST2');
-    // console.log(message.data);
-    console.log(message.content);
-    
     var clientID = message.id;
     var dataList = message.content;
 
     for(var i = 0; i < dataList.length; i++)
     {
         decodedData = JSON.parse(dataList[i]);
-        console.log('TEST3');
-        console.log(decodedData);
+
         var memoryUsage = decodedData['memory-usage'];
         var cpuUsage    = decodedData['cpu-usage'];
         var timestamp   = decodedData['timestamp'];
@@ -215,14 +208,10 @@ WebSocketHandler.prototype.initDataForChart = function(usageHistory)
 WebSocketHandler.prototype.updateData = function(message)
 {
     var monitorID   = message['id'];
-    console.log('UPDATING MONITOR - ID: ' + monitorID);
+    // console.log('UPDATING MONITOR - ID: ' + monitorID);
     var memoryUsage = message['content']['memory-usage'];
     var cpuUsage    = message['content']['cpu-usage'];
     var timestamp   = message['content']['timestamp'];
-    // var msg = JSON.parse(message.content);
-    // printJSON(message);
-
-    // console.log(monitorID + " | " + cpuUsage + " | " + memoryUsage + " | " + timestamp);
 
     var chart = this.charts[monitorID];
 
@@ -260,7 +249,6 @@ WebSocketHandler.prototype.addMonitorInfo = function(monitorDiv, ip)
 
 WebSocketHandler.prototype.nobodyConnected = function()
 {
-    console.log('IAUHFIUAHSIUFHAUI');
     var noConn = document.createElement('div');
     noConn.id = 'empty';
     document.getElementById('monitors-area').appendChild(noConn);
@@ -297,7 +285,6 @@ function createMonitorCanvas(id)
 function checkForConnections()
 {
     var monitorsArea = document.getElementById('monitors-area');
-    console.log(monitorsArea.childNodes.length);
 
     if( !monitorsArea.hasChildNodes() )
     {
