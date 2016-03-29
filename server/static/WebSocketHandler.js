@@ -61,6 +61,8 @@ WebSocketHandler.prototype.processMessage = function(message)
             console.log('ERROR: Invalid message from server');
             // console.log(msg);
     }
+    
+    // checkForConnections();
 }
 
 WebSocketHandler.prototype.initData = function(message)
@@ -124,8 +126,12 @@ WebSocketHandler.prototype.removeMonitor = function(message)
     console.log('REMOVING MONITOR - ID: ' +id);
 
     var monitorToRemove = document.getElementById('monitor_' + id);
-    monitorsArea = document.getElementById('monitors-area');
-    monitorsArea.removeChild(monitorToRemove);
+    
+    var monitorsArea = monitorToRemove.parentNode;
+    if(monitorsArea){
+        monitorsArea.removeChild(monitorToRemove);        
+    }
+
     if(!monitorsArea.hasChildNodes())
     {
         this.nobodyConnected();
@@ -263,7 +269,12 @@ WebSocketHandler.prototype.nobodyConnected = function()
 WebSocketHandler.prototype.hasConnection = function()
 {
     var noConn = document.getElementById('empty');
-    document.getElementById('monitors-area').removeChild(noConn);
+    if(noConn)
+    {
+        var parent = noConn.parentNode;
+        parent.removeChild(noConn);        
+    }
+
 }
 
 function createMonitorDiv(id)
@@ -281,6 +292,17 @@ function createMonitorCanvas(id)
     monitorCanvas.classList.add('monitor-canvas');
     monitorCanvas.id = 'canvas_' + id;
     return monitorCanvas;
+}
+
+function checkForConnections()
+{
+    var monitorsArea = document.getElementById('monitors-area');
+    console.log(monitorsArea.childNodes.length);
+
+    if( !monitorsArea.hasChildNodes() )
+    {
+        webSocket.nobodyConnected();
+    }
 }
 
 
