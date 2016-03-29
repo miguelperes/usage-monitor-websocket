@@ -6,8 +6,8 @@ import websocket
 import psutil
 
 # HOSTNAME = "ws://127.0.0.1:8080/websocket"
-HOSTNAME = "ws://192.168.0.100:8080/websocket"
-# HOSTNAME = "ws://45.55.193.149:8080/websocket"
+# HOSTNAME = "ws://192.168.0.100:8080/websocket"
+HOSTNAME = "ws://45.55.193.149:8080/websocket"
 
 DELAY = 1
 CONN = False    # Current connection status
